@@ -1,0 +1,22 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  form(method='POST' action='')
+    label First Name: 
+      input(type='text' required='true' name='firstName' value=(user===undefined ? '': user.firstName))
+    label Last Name:
+      input(type='text' required='true' name='lastName' value=(user===undefined ? '': user.lastName))
+    label Username: 
+      input(type='text' required='true' name='username' value=(user===undefined ? '': user.username))
+    label Password: 
+      input(type='password' required='true' name='password')
+    label Confirm Password: 
+      input(type='password' required='true' name='passwordVerify')
+    button(type='submit') Sign Up
+  
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg

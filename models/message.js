@@ -17,4 +17,4 @@ MessageSchema.virtual('timestampString').get(function () {
   return this.timestamp.toString();
 });
 
-module.exports = mongoose.model('Category', MessageSchema);
+module.exports = mongoose.model('Message', MessageSchema);

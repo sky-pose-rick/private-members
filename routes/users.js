@@ -1,9 +1,12 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+const router = express.Router();
+
+const userController = require('../controllers/userController');
+
+// routes without parameters must come before routes with parameters
+
+router.get('/signup', userController.signup_get);
+router.post('/signup', userController.signup_post);
 
 module.exports = router;
