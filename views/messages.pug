@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  if user
+    h1 Welcome #{user.username}
+    a(href='/memberboard/logout') Log out
+  else 
+    p please sign in 
+    a(href='/memberboard/login') sign in 
+    p or register 
+    a(href='/memberboard/signup') sign up

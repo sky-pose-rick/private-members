@@ -1,6 +1,9 @@
 const { body, validationResult } = require('express-validator');
 
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const session = require('express-session');
+
 const User = require('../models/user');
 const Message = require('../models/message');
 
@@ -33,7 +36,7 @@ const signupValidators = [
 ];
 
 exports.signup_get = (req, res, next) => {
-  // TODO: if logged in, redirect
+  if (req.user) { res.redirect('/'); }
 
   res.render('sign-up', {
     title: 'Sign Up',
@@ -95,14 +98,14 @@ exports.signup_post = [
       if (err) { return next(err); }
       user.password = hashedPassword;
       user.save()
-        .then((newUser) => res.redirect('/memberboard/messages')) // TODO update session
+        .then((newUser) => res.redirect('/memberboard/login'))
         .catch((saveErr) => next(saveErr));
     });
   },
 ];
 
 exports.login_get = (req, res, next) => {
-  // TODO: if logged in, redirect
+  if (req.session.user) { res.redirect('/'); }
 
   res.render('login', {
     title: 'Login',
@@ -129,37 +132,27 @@ exports.login_post = [
       return;
     }
 
-    User.findOne({ username: req.body.username })
-      .then((user) => {
-        if (user) {
-          bcrypt.compare(req.body.password, user.password, (err, result) => {
-            if (result) {
-              // valid login
-              // TODO update session
-              res.redirect('/memberboard/messages');
-            } else {
-              // incorrect password
-              res.render('login', {
-                title: 'Login',
-                user: { username: req.body.username },
-                errors: [{ msg: 'Incorrect Username or Password.' }],
-              });
-            }
-          });
-        } else {
-          // render again
-          res.render('login', {
-            title: 'Login',
-            user: { username: req.body.username },
-            errors: [{ msg: 'Incorrect Username or Password.' }],
-          });
-        }
-      })
-      .catch((err) => next(err));
+    passport.authenticate('local', (err, user, info, status) => {
+      if (err) { next(err); }
+      if (!user) {
+        return res.render('login', {
+          title: 'Login',
+          user: { username: req.body.username },
+          errors: [{ msg: 'Incorrect username or password.' }],
+        });
+      }
+      // valid login
+      req.login(user, (loginError) => {
+        if (loginError) { next(err); }
+        res.redirect('/');
+      });
+    })(req, res, next);
   },
 ];
 
-exports.logout_post = (req, res, next) => {
-  // TODO end session if it exists
-  res.redirect('/memberboard/messages');
+exports.logout_get = (req, res, next) => {
+  req.logout((err) => {
+    if (err) { next(err); }
+    res.redirect('/');
+  });
 };
