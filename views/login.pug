@@ -1,0 +1,16 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  form(method='POST' action='')
+    label Username: 
+      input(type='text' required='true' name='username' value=(user===undefined ? '': user.username))
+    label Password: 
+      input(type='password' required='true' name='password')
+    button(type='submit') Login
+  
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg

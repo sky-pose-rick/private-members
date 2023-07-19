@@ -58,7 +58,14 @@ exports.signup_post = [
     .isLength({ min: 1 })
     .escape()
     .isLength({ max: MAX_NAME_LENGTH })
-    .withMessage(`Names must be shorter than ${MAX_NAME_LENGTH} characters.`),
+    .withMessage(`Names must be shorter than ${MAX_NAME_LENGTH} characters.`)
+    .custom(async (value) => {
+      // detect duplicate username
+      const user = await User.findOne({ username: value });
+      if (user) {
+        throw new Error('Username already taken');
+      }
+    }),
   body('password', 'Password be at least 5 characters long.')
     .isLength({ min: 5 }),
   body('passwordVerify', 'Passwords must match.')
@@ -68,13 +75,11 @@ exports.signup_post = [
     const errors = validationResult(req);
     const errorsArray = errors.array();
 
-    const user = {
+    const user = new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       username: req.body.username,
-    };
-
-    // TODO: check for unique username
+    });
 
     if (!errors.isEmpty()) {
       // render again
@@ -88,8 +93,73 @@ exports.signup_post = [
 
     bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
       if (err) { return next(err); }
-      // TODO: create user
-      res.redirect('/memberboard/messages');
+      user.password = hashedPassword;
+      user.save()
+        .then((newUser) => res.redirect('/memberboard/messages')) // TODO update session
+        .catch((saveErr) => next(saveErr));
     });
   },
 ];
+
+exports.login_get = (req, res, next) => {
+  // TODO: if logged in, redirect
+
+  res.render('login', {
+    title: 'Login',
+  });
+};
+
+exports.login_post = [
+  body('username', 'Username must not be empty.')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('password', 'Password must not be empty.')
+    .isLength({ min: 1 }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      // render again
+      res.render('login', {
+        title: 'Login',
+        user: { username: req.body.username },
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    User.findOne({ username: req.body.username })
+      .then((user) => {
+        if (user) {
+          bcrypt.compare(req.body.password, user.password, (err, result) => {
+            if (result) {
+              // valid login
+              // TODO update session
+              res.redirect('/memberboard/messages');
+            } else {
+              // incorrect password
+              res.render('login', {
+                title: 'Login',
+                user: { username: req.body.username },
+                errors: [{ msg: 'Incorrect Username or Password.' }],
+              });
+            }
+          });
+        } else {
+          // render again
+          res.render('login', {
+            title: 'Login',
+            user: { username: req.body.username },
+            errors: [{ msg: 'Incorrect Username or Password.' }],
+          });
+        }
+      })
+      .catch((err) => next(err));
+  },
+];
+
+exports.logout_post = (req, res, next) => {
+  // TODO end session if it exists
+  res.redirect('/memberboard/messages');
+};

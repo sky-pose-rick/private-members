@@ -7,6 +7,17 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
+require('dotenv').config();
+const mongoose = require('mongoose');
+
+mongoose.set('strictQuery', false);
+const mongoDB = process.env.ATLAS_CONNECTION_STRING;
+
+main().catch((err) => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
+
 const app = express();
 
 // view engine setup
