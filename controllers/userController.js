@@ -7,6 +7,8 @@ const session = require('express-session');
 const User = require('../models/user');
 const Message = require('../models/message');
 
+require('dotenv').config();
+
 const MAX_NAME_LENGTH = 50;
 
 const signupValidators = [
@@ -98,14 +100,19 @@ exports.signup_post = [
       if (err) { return next(err); }
       user.password = hashedPassword;
       user.save()
-        .then((newUser) => res.redirect('/memberboard/login'))
+        .then((newUser) => {
+          req.login(newUser, (logErr) => {
+            if (logErr) { next(logErr); }
+            res.redirect('/');
+          });
+        })
         .catch((saveErr) => next(saveErr));
     });
   },
 ];
 
 exports.login_get = (req, res, next) => {
-  if (req.session.user) { res.redirect('/'); }
+  if (req.user) { res.redirect('/'); }
 
   res.render('login', {
     title: 'Login',
@@ -156,3 +163,74 @@ exports.logout_get = (req, res, next) => {
     res.redirect('/');
   });
 };
+
+const rankBody = (password) => body('password', 'Incorrect.')
+  .isLength({ min: 1 })
+  .custom((value) => value === password);
+
+exports.member_get = (req, res, next) => {
+  if (req.user == null || req.user.isMember) { res.redirect('/'); }
+  res.render('upgrade', {
+    rank: 'Member',
+  });
+};
+
+exports.member_post = [
+  rankBody(process.env.MEMBER_RANK_PASSWORD),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      // render again
+      res.render('upgrade', {
+        title: 'Member',
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    req.user.isMember = true;
+
+    req.user.save()
+      .then(() => {
+        res.redirect('/');
+      })
+      .catch((err) => {
+        next(err);
+      });
+  },
+];
+
+exports.admin_get = (req, res, next) => {
+  if (req.user == null || req.user.isAdmin) { res.redirect('/'); }
+  res.render('upgrade', {
+    rank: 'Admin',
+  });
+};
+
+exports.admin_post = [
+  rankBody(process.env.ADMIN_RANK_PASSWORD),
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      // render again
+      res.render('upgrade', {
+        title: 'Admin',
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    req.user.isMember = true;
+    req.user.isAdmin = true;
+
+    req.user.save()
+      .then(() => {
+        res.redirect('/');
+      })
+      .catch((err) => {
+        next(err);
+      });
+  },
+];

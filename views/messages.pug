@@ -3,6 +3,14 @@ extends layout
 block content
   if user
     h1 Welcome #{user.username}
+    if(user.isMember)
+      p Member
+    else 
+      a(href='/memberboard/member') Become Member
+    if(user.isAdmin)
+      p Admin
+    else 
+      a(href='/memberboard/admin') Become Admin
     a(href='/memberboard/logout') Log out
   else 
     p please sign in 
