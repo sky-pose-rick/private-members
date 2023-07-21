@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1=message.title 
+  if user && user.isMember
+    h2=message.author.username
+    h2=message.timestampString 
+  p=message.content
+  if user && user.isAdmin
+    form(method='POST' action='')
+      button(type='submit') Delete Message

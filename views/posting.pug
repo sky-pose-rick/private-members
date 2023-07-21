@@ -1,0 +1,16 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  form(method='POST' action='')
+    label Title: 
+      input(type='text' required='true' name='title' value=(message===undefined ? '': message.title))
+    label Content: 
+      textarea(type='textarea' required='true' name='content') #{message===undefined ? '': message.content}
+    button(type='submit') Post Message
+  
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg
