@@ -6,3 +6,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+header {
+	display: flex;
+	background-color: grey;
+	height: 60px;
+	font-size: 25px;
+	align-items: center;
+}

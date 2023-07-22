@@ -5,11 +5,11 @@ block content
 
   form(method='POST' action='')
     label First Name: 
-      input(type='text' required='true' name='firstName' value=(user===undefined ? '': user.firstName))
+      input(type='text' required='true' name='firstName' value=(newUser===undefined ? '': newUser.firstName))
     label Last Name:
-      input(type='text' required='true' name='lastName' value=(user===undefined ? '': user.lastName))
+      input(type='text' required='true' name='lastName' value=(newUser===undefined ? '': newUser.lastName))
     label Username: 
-      input(type='text' required='true' name='username' value=(user===undefined ? '': user.username))
+      input(type='text' required='true' name='username' value=(newUser===undefined ? '': newUser.username))
     label Password: 
       input(type='password' required='true' name='password')
     label Confirm Password: 

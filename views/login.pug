@@ -5,7 +5,7 @@ block content
 
   form(method='POST' action='')
     label Username: 
-      input(type='text' required='true' name='username' value=(user===undefined ? '': user.username))
+      input(type='text' required='true' name='username' value=(newUser===undefined ? '': newUser.username))
     label Password: 
       input(type='password' required='true' name='password')
     button(type='submit') Login

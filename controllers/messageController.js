@@ -51,6 +51,7 @@ exports.posting_get = (req, res, next) => {
 
   res.render('posting', {
     title: 'New Message',
+    user: req.user,
   });
 };
 
@@ -77,6 +78,7 @@ exports.posting_post = [
       res.render('posting', {
         title: 'New Message',
         message,
+        user: req.user,
         errors: [{ msg: 'Not signed in' }],
       });
       return;
@@ -87,6 +89,7 @@ exports.posting_post = [
       res.render('posting', {
         title: 'New Message',
         message,
+        user: req.user,
         errors: errors.array(),
       });
       return;

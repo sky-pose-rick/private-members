@@ -1,24 +1,6 @@
 extends layout
 
 block content
-  if user
-    h1 Welcome #{user.username}
-    if(user.isMember)
-      p Member
-    else 
-      a(href='/memberboard/member') Become Member
-    if(user.isAdmin)
-      p Admin
-    else 
-      a(href='/memberboard/admin') Become Admin
-    a(href='/memberboard/logout') Log out
-    a(href='/memberboard/post') New Message 
-  else 
-    p please sign in 
-    a(href='/memberboard/login') sign in 
-    p or register 
-    a(href='/memberboard/signup') sign up
-
   ul
     each message in messages 
       li= message.title 

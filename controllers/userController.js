@@ -14,6 +14,7 @@ exports.signup_get = (req, res, next) => {
 
   res.render('sign-up', {
     title: 'Sign Up',
+    user: req.user,
   });
 };
 
@@ -52,7 +53,7 @@ exports.signup_post = [
     const errors = validationResult(req);
     const errorsArray = errors.array();
 
-    const user = new User({
+    const newUser = new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       username: req.body.username,
@@ -62,7 +63,8 @@ exports.signup_post = [
       // render again
       res.render('sign-up', {
         title: 'Sign Up',
-        user,
+        newUser,
+        user: req.user,
         errors: errorsArray,
       });
       return;
@@ -72,8 +74,8 @@ exports.signup_post = [
       if (err) { return next(err); }
       user.password = hashedPassword;
       user.save()
-        .then((newUser) => {
-          req.login(newUser, (logErr) => {
+        .then((savedUser) => {
+          req.login(savedUser, (logErr) => {
             if (logErr) { next(logErr); }
             res.redirect('/');
           });
@@ -88,6 +90,7 @@ exports.login_get = (req, res, next) => {
 
   res.render('login', {
     title: 'Login',
+    user: req.user,
   });
 };
 
@@ -105,7 +108,8 @@ exports.login_post = [
       // render again
       res.render('login', {
         title: 'Login',
-        user: { username: req.body.username },
+        newUser: { username: req.body.username },
+        user: req.user,
         errors: errors.array(),
       });
       return;
@@ -116,7 +120,8 @@ exports.login_post = [
       if (!user) {
         return res.render('login', {
           title: 'Login',
-          user: { username: req.body.username },
+          newUser: { username: req.body.username },
+          user: req.user,
           errors: [{ msg: 'Incorrect username or password.' }],
         });
       }
@@ -144,6 +149,7 @@ exports.member_get = (req, res, next) => {
   if (req.user == null || req.user.isMember) { res.redirect('/'); }
   res.render('upgrade', {
     rank: 'Member',
+    user: req.user,
   });
 };
 
@@ -156,6 +162,7 @@ exports.member_post = [
       // render again
       res.render('upgrade', {
         title: 'Member',
+        user: req.user,
         errors: errors.array(),
       });
       return;
@@ -177,6 +184,7 @@ exports.admin_get = (req, res, next) => {
   if (req.user == null || req.user.isAdmin) { res.redirect('/'); }
   res.render('upgrade', {
     rank: 'Admin',
+    user: req.user,
   });
 };
 
@@ -189,6 +197,7 @@ exports.admin_post = [
       // render again
       res.render('upgrade', {
         title: 'Admin',
+        user: req.user,
         errors: errors.array(),
       });
       return;

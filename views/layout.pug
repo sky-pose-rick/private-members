@@ -4,4 +4,23 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
+    header 
+      a(href='/memberboard/messages') MemberBoard 
+      div(style='margin-left: auto')
+        if(user)
+          span #{user.username}
+          if(user.isMember)
+            span Member
+          else 
+            a(href='/memberboard/member') Become Member
+          if(user.isAdmin)
+            span Admin
+          else 
+            a(href='/memberboard/admin') Become Admin
+          a(href='/memberboard/logout') Logout
+        else 
+          a(href='/memberboard/login') Login
+          a(href='/memberboard/signup') Register
     block content
+    footer 
+      a(href='/memberboard/about') About MemberBoard
