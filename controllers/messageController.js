@@ -106,3 +106,10 @@ exports.posting_post = [
         next(err);
       });
   }];
+
+exports.about_get = (req, res, next) => {
+  res.render('about', {
+    title: 'About Memberboard',
+    user: req.user,
+  });
+};
