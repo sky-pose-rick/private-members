@@ -148,6 +148,7 @@ const rankBody = (password) => body('password', 'Incorrect.')
 exports.member_get = (req, res, next) => {
   if (req.user == null || req.user.isMember) { res.redirect('/'); }
   res.render('upgrade', {
+    title: 'Become Member',
     rank: 'Member',
     user: req.user,
   });
@@ -161,7 +162,8 @@ exports.member_post = [
     if (!errors.isEmpty()) {
       // render again
       res.render('upgrade', {
-        title: 'Member',
+        title: 'Become Member',
+        rank: 'Member',
         user: req.user,
         errors: errors.array(),
       });
@@ -183,6 +185,7 @@ exports.member_post = [
 exports.admin_get = (req, res, next) => {
   if (req.user == null || req.user.isAdmin) { res.redirect('/'); }
   res.render('upgrade', {
+    title: 'Become Admin',
     rank: 'Admin',
     user: req.user,
   });
@@ -196,7 +199,8 @@ exports.admin_post = [
     if (!errors.isEmpty()) {
       // render again
       res.render('upgrade', {
-        title: 'Admin',
+        title: 'Become Admin',
+        rank: 'Admin',
         user: req.user,
         errors: errors.array(),
       });
