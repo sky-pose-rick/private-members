@@ -10,7 +10,18 @@ require('dotenv').config();
 const MAX_NAME_LENGTH = 50;
 
 exports.signup_get = (req, res, next) => {
-  if (req.user) { res.redirect('/'); }
+  if (req.user) {
+    res.render('transition', {
+      title: 'Already Signed In',
+      user: req.user,
+      messages: ['Already signed in.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
+    return;
+  }
 
   res.render('sign-up', {
     title: 'Sign Up',
@@ -72,12 +83,20 @@ exports.signup_post = [
 
     bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
       if (err) { return next(err); }
-      user.password = hashedPassword;
-      user.save()
+      newUser.password = hashedPassword;
+      newUser.save()
         .then((savedUser) => {
           req.login(savedUser, (logErr) => {
             if (logErr) { next(logErr); }
-            res.redirect('/');
+            res.render('transition', {
+              title: 'Registered',
+              user: req.user,
+              messages: ['Successfully signed up.'],
+              links: [{
+                url: '/',
+                text: 'Back to Home',
+              }],
+            });
           });
         })
         .catch((saveErr) => next(saveErr));
@@ -86,7 +105,18 @@ exports.signup_post = [
 ];
 
 exports.login_get = (req, res, next) => {
-  if (req.user) { res.redirect('/'); }
+  if (req.user) {
+    res.render('transition', {
+      title: 'Already Signed In',
+      user: req.user,
+      messages: ['Already signed in.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
+    return;
+  }
 
   res.render('login', {
     title: 'Login',
@@ -137,7 +167,17 @@ exports.login_post = [
 exports.logout_get = (req, res, next) => {
   req.logout((err) => {
     if (err) { next(err); }
-    res.redirect('/');
+    if (req.user) {
+      res.render('transition', {
+        title: 'Logged Out',
+        user: req.user,
+        messages: ['Successfully logged out.'],
+        links: [{
+          url: '/',
+          text: 'Back to Home',
+        }],
+      });
+    }
   });
 };
 
@@ -146,7 +186,18 @@ const rankBody = (password) => body('password', 'Incorrect.')
   .custom((value) => value === password);
 
 exports.member_get = (req, res, next) => {
-  if (req.user == null || req.user.isMember) { res.redirect('/'); }
+  if (req.user == null) { res.redirect('/memberboard/login'); }
+  if (req.user.isMember) {
+    res.render('transition', {
+      title: 'Already A Member',
+      user: req.user,
+      messages: ['Already a member.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
+  }
   res.render('upgrade', {
     title: 'Become Member',
     rank: 'Member',
@@ -174,7 +225,15 @@ exports.member_post = [
 
     req.user.save()
       .then(() => {
-        res.redirect('/');
+        res.render('transition', {
+          title: 'Membership Recognized',
+          user: req.user,
+          messages: ['You are now a member.'],
+          links: [{
+            url: '/',
+            text: 'Back to Home',
+          }],
+        });
       })
       .catch((err) => {
         next(err);
@@ -183,7 +242,18 @@ exports.member_post = [
 ];
 
 exports.admin_get = (req, res, next) => {
-  if (req.user == null || req.user.isAdmin) { res.redirect('/'); }
+  if (req.user == null) { res.redirect('/memberboard/login'); }
+  if (req.user.isMember) {
+    res.render('transition', {
+      title: 'Already An Admin',
+      user: req.user,
+      messages: ['Already an admin.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
+  }
   res.render('upgrade', {
     title: 'Become Admin',
     rank: 'Admin',
@@ -212,7 +282,15 @@ exports.admin_post = [
 
     req.user.save()
       .then(() => {
-        res.redirect('/');
+        res.render('transition', {
+          title: 'Adminship Recognized',
+          user: req.user,
+          messages: ['You are now an admin.'],
+          links: [{
+            url: '/',
+            text: 'Back to Home',
+          }],
+        });
       })
       .catch((err) => {
         next(err);

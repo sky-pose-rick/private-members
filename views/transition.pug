@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  each message in messages
+    p=message
+  each link in links
+    a(href=link.url) #{link.text}

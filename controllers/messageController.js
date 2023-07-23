@@ -2,6 +2,8 @@ const { body, validationResult } = require('express-validator');
 
 const Message = require('../models/message');
 
+require('dotenv').config();
+
 exports.messages_get = (req, res, next) => {
   Message.find()
     .then((messages) => {
@@ -34,20 +36,45 @@ exports.message_get = (req, res, next) => {
 };
 
 exports.message_delete = (req, res, next) => {
-  console.log('delete route called');
   if (!req.user || !req.user.isAdmin) {
-    res.redirect('/');
+    res.render('transition', {
+      title: 'Insufficient Privilege',
+      user: req.user,
+      messages: ['You must be an admin to do that.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
   }
 
   Message.deleteOne({ _id: req.params.id })
     .then(() => {
-      res.redirect('/');
+      res.render('transition', {
+        title: 'Message Deleted',
+        user: req.user,
+        messages: ['Message successfully deleted.'],
+        links: [{
+          url: '/',
+          text: 'Back to Home',
+        }],
+      });
     })
     .catch((err) => { next(err); });
 };
 
 exports.posting_get = (req, res, next) => {
-  if (!req.user) { res.redirect('/'); }
+  if (!req.user) {
+    res.render('transition', {
+      title: 'Insufficient Privilege',
+      user: req.user,
+      messages: ['You must be signed in to do that.'],
+      links: [{
+        url: '/',
+        text: 'Back to Home',
+      }],
+    });
+  }
 
   res.render('posting', {
     title: 'New Message',
@@ -111,5 +138,6 @@ exports.about_get = (req, res, next) => {
   res.render('about', {
     title: 'About Memberboard',
     user: req.user,
+    memberCode: process.env.MEMBER_RANK_PASSWORD,
   });
 };
